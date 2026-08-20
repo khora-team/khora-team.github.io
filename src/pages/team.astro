@@ -23,25 +23,29 @@ const categories = [
 <Layout>
 	<Navigation />
 
-	<h1>Members of Khora</h1>
+	<main>
+		<section class="main">
+			<h1>Members of Khora</h1>
 
-	{categories.map(({ key, title }) => {
-		const members = people.filter((person) => person.data.category === key)
+			{categories.map(({ key, title }) => {
+				const members = people.filter((person) => person.data.category === key)
 
-		if (members.length === 0) return null;
+				if (members.length === 0) return null;
 
-		return (
-			<section class="team-section">
-				<h2>{title}</h2>
+				return (
+					<section class="team-section">
+						<h2>{title}</h2>
 
-				<div class="team-grid">
-					{members.map(person => (
-						<PersonCard person={person} />
-					))}
-				</div>
-			</section>
-		);
-	})}
+						<div class="team-grid">
+							{members.map(person => (
+								<PersonCard person={person} />
+							))}
+						</div>
+					</section>
+				);
+			})}
+		</section>
+	</main>
 </Layout>
 
 
