@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { Image } from 'astro:assets';
 
 interface ProjectData {
   project: {
@@ -7,7 +8,6 @@ interface ProjectData {
       name: string,
       website?: string,
       repository?: string,
-      logo?: string,
       pic?: string,
       type: string,
     },
@@ -25,7 +25,7 @@ const images = import.meta.glob('/src/content/pic/*.jpg', {
 
 <div class="card">
   {images[`/src/content/pic/${project.id}.jpg`] ? (
-      <img src={`/src/content/pic/${project.id}.jpg`} />
+      <Image src={images[`/src/content/pic/${project.id}.jpg`]} alt="photo" />
   ) : (
       <Icon name="fa6-solid:user" width="140px" height="140px" />
   )}
@@ -67,6 +67,7 @@ const images = import.meta.glob('/src/content/pic/*.jpg', {
 
   .card img {
     width: 260px;
+    height: 260px;
   }
 
   .card h3 {

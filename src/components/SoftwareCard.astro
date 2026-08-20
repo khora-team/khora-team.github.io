@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { Image } from 'astro:assets';
 
 interface SoftwareData {
   software: {
@@ -7,7 +8,6 @@ interface SoftwareData {
       name: string,
       website?: string,
       repository?: string,
-      logo?: string,
     },
     body: string
   };
@@ -15,11 +15,16 @@ interface SoftwareData {
 
 const { software } = Astro.props as SoftwareData;
 
+const images = import.meta.glob('/src/content/pic/*.webp', {
+  eager: true,
+  import: 'default',
+});
+
 ---
 
 <div class="card">
-  {software.data.logo ? (
-      <img src={software.data.logo} />
+  {images[`/src/content/pic/${software.id}.webp`]  ? (
+      <Image src={images[`/src/content/pic/${software.id}.webp`]} alt="logo" />
   ) : (
       <Icon name="fa6-solid:user" width="140px" height="140px" />
   )}
@@ -64,6 +69,7 @@ const { software } = Astro.props as SoftwareData;
 
   .card img {
     width: 160px;
+    height: 160px;
     aspect-ratio: 1;
     object-fit: cover;
     border-radius: 50%;
