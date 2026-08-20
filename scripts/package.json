@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "publications:import": "tsx scripts/import-hal-publications.ts"
+  },
+  "dependencies": {
+    "bibtex-parser": "0.1.0"
+  },
+  "devDependencies": {
+    "tsx": "4.20.3"
+  }
+}
