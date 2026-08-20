@@ -1,67 +1,117 @@
 ---
 const links = [
-  { href: "/", label: "Home" },
-  // { href: "/objectives", label: "Objectives" },
-  { href: "/team", label: "Team" },
-  { href: "/publications", label: "Publications" },
-  { href: "/projects", label: "Projects" },
-  { href: "/software", label: "Software" },
-  { href: "/jobs", label: "Join us" },
+{ href: "/", label: "Home" },
+{ href: "/team", label: "Team" },
+{ href: "/publications", label: "Publications" },
+{ href: "/projects", label: "Projects" },
+{ href: "/software", label: "Software" },
+{ href: "/jobs", label: "Join us" },
 ];
 
 const pathname = Astro.url.pathname;
 ---
 
 <nav class="navigation">
+  <a class="logo" href="/" aria-label="Khora home">
+    <span class="logo-mark">K</span>
+    <span class="logo-name">Khora</span>
+  </a>
+
   <ul>
     {links.map(({ href, label }) => {
       const active = pathname === href;
 
       return (
-        <li>
-          <a
-            href={href}
-            class:list={{ active }}
-            aria-current={active ? "page" : undefined}
-          >
-            {label}
-          </a>
-        </li>
+          <li>
+            <a
+                href={href}
+                class:list={{ active }}
+                aria-current={active ? "page" : undefined}
+            >
+              {label}
+            </a>
+          </li>
       );
     })}
   </ul>
 </nav>
 
 <style>
- .navigation {
-  background: #222;
-  padding: 1rem 2rem;
-}
+  .navigation {
+    height: 82px;
+    background: #222;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
 
-.navigation ul {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;
-  gap: 2rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  .logo {
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
 
-.navigation a {
-  color: #ddd;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
+  .logo-mark {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    background: #fff;
+    color: #222;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
 
-.navigation a:hover {
-  color: white;
-}
+  .logo-name {
+    line-height: 1;
+  }
 
-.navigation a.active {
-  color: #4f9cff;
-  border-bottom: 2px solid #4f9cff;
-  padding-bottom: 0.25rem;
-}
+  .navigation ul {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .navigation a {
+    color: #ddd;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .navigation a:hover {
+    color: white;
+  }
+
+  .navigation a.active {
+    color: #4f9cff;
+    border-bottom: 2px solid #4f9cff;
+    padding-bottom: 0.25rem;
+  }
+
+  @media (max-width: 700px) {
+    .navigation {
+      padding: 0 1rem;
+    }
+
+    .navigation ul {
+      gap: 1rem;
+    }
+
+    .navigation ul a {
+      font-size: 0.85rem;
+    }
+  }
 </style>
