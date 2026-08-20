@@ -9,8 +9,7 @@ const HAL_URL =
   "&labos_exp=diverse" +
   "&format_export=bibtex" +
   "&langue=Anglais" +
-  "&CB_accent_latex=oui" +
-  "&CB_aff_abstract=oui";
+  "&CB_accent_latex=oui";
 
 const BIB_FILE = join(
   process.cwd(),
