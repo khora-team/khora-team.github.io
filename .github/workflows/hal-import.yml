@@ -3,6 +3,7 @@ name: Update publications
 on:
   schedule:
     - cron: "0 4 * * 1"
+
   workflow_dispatch:
 
 permissions:
@@ -13,16 +14,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Import publications from HAL
+      - name: Download publications from HAL
+        run: |
+          mkdir -p data
+
+          wget \
+            --output-document=data/publications.bib \
+            "https://haltools.inria.fr/Public/exportPubli.php?annee_publideb=2026&annee_publifin=2026&labos_exp=diverse&format_export=bibtex&langue=Anglais&CB_accent_latex=oui"
+
+          echo "Downloaded file:"
+          file data/publications.bib
+
+          echo "First lines:"
+          head -n 10 data/publications.bib
+
+          if ! grep -q '^@' data/publications.bib; then
+            echo "ERROR: HAL did not return a BibTeX document."
+            exit 1
+          fi
+
+      - name: Generate publication pages
         run: npm run publications:import
 
       - name: Commit changes
@@ -30,10 +53,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add src/content/publications
           git add data/publications.bib
+          git add src/content/publications
 
-          git diff --cached --quiet || \
-            git commit -m "chore(hal): updating publications"
-
-          git push
+          if git diff --cached --quiet; then
+            echo "No publication changes detected."
+          else
+            git commit -m "chore: update publications"
+            git push
+          fi push
