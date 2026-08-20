@@ -48,8 +48,27 @@ const team = defineCollection({
   }),
 });
 
+
+const publications = defineCollection({
+  loader: glob({ base: './src/content/publications', pattern: '**/*.md' }),
+  schema: z.object({
+    title: z.string(),
+    authors: z.array(
+        z.string(),
+    ),
+    year: z.number().nullable(),
+    venue: z.string().default(""),
+    halId: z.string().default(""),
+    doi: z.string().default(""),
+    url: z.string().default(""),
+    pdf: z.string().default(""),
+    type: z.string().default("misc"),
+  }),
+});
+
 export const collections = {
   team,
   software,
   project,
+  publications,
 };

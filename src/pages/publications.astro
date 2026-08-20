@@ -1,0 +1,446 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import Navigation from "../components/Navigation.astro";
+import PublicationCard from "../components/PublicationCard.astro";
+
+const publications = await getCollection("publications");
+
+const sortedPublications = publications.sort((a, b) => {
+    const yearA = Number(a.data.year) || 0;
+    const yearB = Number(b.data.year) || 0;
+
+    return yearB - yearA;
+});
+
+const years = [
+    ...new Set(
+        sortedPublications
+            .map((publication) => Number(publication.data.year))
+            .filter(Boolean),
+    ),
+].sort((a, b) => b - a);
+
+const types = [
+    ...new Set(
+        sortedPublications
+            .map((publication) => publication.data.type)
+            .filter(Boolean),
+    ),
+].sort();
+
+const authors = [
+    ...new Set(
+        sortedPublications.flatMap(
+            (publication) => publication.data.authors,
+        ),
+    ),
+].sort((a, b) => a.localeCompare(b));
+---
+
+<Layout title="Publications">
+    <Navigation />
+
+    <main class="publications-page">
+        <h1>Publications</h1>
+
+        <section class="filters" aria-label="Filter publications">
+            <div class="search-field">
+                <label for="publication-search">
+                    Search
+                </label>
+
+                <input
+                        id="publication-search"
+                        type="search"
+                        placeholder="Search publications..."
+                        autocomplete="off"
+                />
+            </div>
+
+            <div class="filter-field">
+                <label for="publication-year">
+                    Year
+                </label>
+
+                <select id="publication-year">
+                    <option value="">All years</option>
+
+                    {years.map((year) => (
+                            <option value={year}>{year}</option>
+                    ))}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="publication-type">
+                    Type
+                </label>
+
+                <select id="publication-type">
+                    <option value="">All types</option>
+
+                    {types.map((type) => (
+                            <option value={type}>{type}</option>
+                    ))}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="publication-author">
+                    Author
+                </label>
+
+                <select id="publication-author">
+                    <option value="">All authors</option>
+
+                    {authors.map((author) => (
+                            <option value={author}>{author}</option>
+                    ))}
+                </select>
+            </div>
+
+            <button
+                    id="clear-filters"
+                    type="button"
+            >
+                Clear filters
+            </button>
+        </section>
+
+        <div class="publication-count" aria-live="polite">
+      <span id="publication-count">
+        {sortedPublications.length}
+      </span>
+            <span> publications</span>
+        </div>
+
+        <section
+                id="publications-list"
+                class="publications-list"
+                aria-label="Publications"
+        >
+            {sortedPublications.map((publication) => (
+                    <div
+                            class="publication-item"
+                            data-year={publication.data.year}
+                            data-type={publication.data.type ?? ""}
+                            data-authors={publication.data.authors.join("|")}
+                            data-search={[
+                                publication.data.title,
+                                publication.data.authors.join(" "),
+                                publication.data.venue ?? "",
+                                publication.data.type ?? "",
+                            ]
+                                .join(" ")
+                                .toLowerCase()}
+                    >
+                        <PublicationCard
+                                title={publication.data.title}
+                                authors={publication.data.authors}
+                                year={publication.data.year}
+                                venue={publication.data.venue}
+                                type={publication.data.type}
+                                url={publication.data.url}
+                                pdf={publication.data.pdf}
+                                doi={publication.data.doi}
+                        />
+                    </div>
+            ))}
+        </section>
+
+        <p
+                id="no-results"
+                class="no-results"
+                hidden
+        >
+            No publications match the selected filters.
+        </p>
+    </main>
+</Layout>
+
+<script>
+    const searchInput =
+        document.querySelector<HTMLInputElement>(
+            "#publication-search",
+        );
+
+    const yearSelect =
+        document.querySelector<HTMLSelectElement>(
+            "#publication-year",
+        );
+
+    const typeSelect =
+        document.querySelector<HTMLSelectElement>(
+            "#publication-type",
+        );
+
+    const authorSelect =
+        document.querySelector<HTMLSelectElement>(
+            "#publication-author",
+        );
+
+    const clearButton =
+        document.querySelector<HTMLButtonElement>(
+            "#clear-filters",
+        );
+
+    const countElement =
+        document.querySelector<HTMLElement>(
+            "#publication-count",
+        );
+
+    const noResults =
+        document.querySelector<HTMLElement>(
+            "#no-results",
+        );
+
+    const items = Array.from(
+        document.querySelectorAll<HTMLElement>(
+            ".publication-item",
+        ),
+    );
+
+    function filterPublications() {
+        const search =
+            searchInput?.value
+                .trim()
+                .toLowerCase() ?? "";
+
+        const year =
+            yearSelect?.value ?? "";
+
+        const type =
+            typeSelect?.value ?? "";
+
+        const author =
+            authorSelect?.value ?? "";
+
+        let visibleCount = 0;
+
+        for (const item of items) {
+            const itemYear =
+                item.dataset.year ?? "";
+
+            const itemType =
+                item.dataset.type ?? "";
+
+            const itemAuthors =
+                item.dataset.authors
+                    ?.split("|")
+                    .map((value) => value.trim()) ?? [];
+
+            const itemSearch =
+                item.dataset.search ?? "";
+
+            const matchesSearch =
+                !search ||
+                itemSearch.includes(search);
+
+            const matchesYear =
+                !year ||
+                itemYear === year;
+
+            const matchesType =
+                !type ||
+                itemType === type;
+
+            const matchesAuthor =
+                !author ||
+                itemAuthors.includes(author);
+
+            const visible =
+                matchesSearch &&
+                matchesYear &&
+                matchesType &&
+                matchesAuthor;
+
+            item.hidden = !visible;
+
+            if (visible) {
+                visibleCount++;
+            }
+        }
+
+        if (countElement) {
+            countElement.textContent =
+                String(visibleCount);
+        }
+
+        if (noResults) {
+            noResults.hidden =
+                visibleCount !== 0;
+        }
+    }
+
+    searchInput?.addEventListener(
+        "input",
+        filterPublications,
+    );
+
+    yearSelect?.addEventListener(
+        "change",
+        filterPublications,
+    );
+
+    typeSelect?.addEventListener(
+        "change",
+        filterPublications,
+    );
+
+    authorSelect?.addEventListener(
+        "change",
+        filterPublications,
+    );
+
+    clearButton?.addEventListener(
+        "click",
+        () => {
+            if (searchInput) {
+                searchInput.value = "";
+            }
+
+            if (yearSelect) {
+                yearSelect.value = "";
+            }
+
+            if (typeSelect) {
+                typeSelect.value = "";
+            }
+
+            if (authorSelect) {
+                authorSelect.value = "";
+            }
+
+            filterPublications();
+        },
+    );
+</script>
+
+<style>
+    .publications-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px 120px 0;
+    }
+
+    .filters {
+        display: grid;
+        grid-template-columns: minmax(240px, 2fr) repeat(3, minmax(140px, 1fr)) auto;
+        gap: 16px;
+        align-items: end;
+
+        padding: 24px 0;
+        margin-bottom: 24px;
+
+        border-top: 1px solid rgba(23, 24, 23, 0.12);
+        border-bottom: 1px solid rgba(23, 24, 23, 0.12);
+    }
+
+    .search-field,
+    .filter-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #666;
+    }
+
+    input,
+    select {
+        width: 100%;
+        box-sizing: border-box;
+
+        padding: 11px 12px;
+
+        border: 1px solid rgba(23, 24, 23, 0.18);
+        border-radius: 0;
+
+        background: white;
+        color: #171817;
+
+        font: inherit;
+        font-size: 0.9rem;
+    }
+
+    input:focus,
+    select:focus {
+        outline: 2px solid rgba(23, 24, 23, 0.25);
+        outline-offset: 2px;
+    }
+
+    #clear-filters {
+        height: 40px;
+
+        padding: 0 14px;
+
+        border: 1px solid rgba(23, 24, 23, 0.18);
+        background: transparent;
+
+        color: #171817;
+
+        font: inherit;
+        font-size: 0.85rem;
+
+        cursor: pointer;
+    }
+
+    #clear-filters:hover {
+        background: #f3f3f1;
+    }
+
+    .publication-count {
+        margin: 32px 0 0;
+
+        color: #777;
+        font-size: 0.85rem;
+    }
+
+    .publications-list {
+        margin-top: 8px;
+    }
+
+    .publication-item[hidden] {
+        display: none;
+    }
+
+    .no-results {
+        margin: 64px 0;
+        text-align: center;
+        color: #777;
+    }
+
+    @media (max-width: 900px) {
+        .filters {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .search-field {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .publications-page {
+            padding: 48px 24px 80px;
+        }
+
+        .filters {
+            grid-template-columns: 1fr;
+        }
+
+        .search-field {
+            grid-column: auto;
+        }
+
+        #clear-filters {
+            width: 100%;
+        }
+    }
+</style>

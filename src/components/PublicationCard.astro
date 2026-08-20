@@ -1,0 +1,187 @@
+---
+interface Props {
+    title: string;
+    authors: string[];
+    year: number | string;
+    venue?: string;
+    type?: string;
+    url?: string;
+    pdf?: string;
+    doi?: string;
+}
+
+const {
+    title,
+    authors,
+    year,
+    venue,
+    type,
+    url,
+    pdf,
+    doi,
+} = Astro.props;
+
+const typeLabels: Record<string, string> = {
+    article: "Journal",
+    journal: "Journal",
+    inproceedings: "Conference",
+    conference: "Conference",
+    proceedings: "Conference",
+    book: "Book",
+    incollection: "Book chapter",
+    phdthesis: "PhD thesis",
+    mastersthesis: "Master thesis",
+    techreport: "Technical report",
+    misc: "Other",
+};
+
+const normalizedType = type?.toLowerCase() ?? "";
+const typeLabel =
+    typeLabels[normalizedType] ??
+    type ??
+    "Publication";
+---
+
+<article class="publication-card">
+    <div class="publication-meta">
+        <span class="publication-year">{year}</span>
+
+        {type && (
+                <span class="publication-type">
+        {typeLabel}
+      </span>
+        )}
+    </div>
+
+    <div class="publication-content">
+        <h2>{title}</h2>
+
+        {authors.length > 0 && (
+                <p class="publication-authors">
+                    {authors.join(", ")}
+                </p>
+        )}
+
+        {venue && (
+                <p class="publication-venue">
+                    {venue}
+                </p>
+        )}
+
+        <div class="publication-links">
+            {url && (
+                    <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                    >
+                        HAL
+                    </a>
+            )}
+
+            {pdf && (
+                    <a
+                            href={pdf}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                    >
+                        PDF
+                    </a>
+            )}
+
+            {doi && (
+                    <a
+                            href={`https://doi.org/${doi}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                    >
+                        DOI
+                    </a>
+            )}
+        </div>
+    </div>
+</article>
+
+<style>
+    .publication-card {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        gap: 32px;
+
+        padding: 32px 0;
+        border-top: 1px solid rgba(23, 24, 23, 0.1);
+    }
+
+    .publication-card:first-child {
+        border-top: none;
+    }
+
+    .publication-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .publication-year {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .publication-type {
+        color: #777;
+        font-size: 0.75rem;
+        line-height: 1.3;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .publication-content h2 {
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+        line-height: 1.35;
+        font-weight: 600;
+    }
+
+    .publication-authors {
+        margin: 0 0 8px;
+        color: #444;
+        line-height: 1.5;
+    }
+
+    .publication-venue {
+        margin: 0;
+        color: #777;
+        font-style: italic;
+        line-height: 1.5;
+    }
+
+    .publication-links {
+        display: flex;
+        gap: 16px;
+        margin-top: 18px;
+    }
+
+    .publication-links a {
+        color: inherit;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .publication-links a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+        .publication-card {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .publication-meta {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+    }
+</style>
