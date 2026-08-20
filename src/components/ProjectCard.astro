@@ -1,0 +1,101 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface ProjectData {
+  project: {
+    data: {
+      name: string,
+      website?: string,
+      repository?: string,
+      logo?: string,
+      pic?: string,
+      type: string,
+    },
+    body: string
+  };
+}
+
+const { project } = Astro.props as ProjectData;
+
+const images = import.meta.glob('/src/content/pic/*.jpg', {
+  eager: true,
+  import: 'default',
+});
+---
+
+<div class="card">
+  {images[`/src/content/pic/${project.id}.jpg`] ? (
+      <img src={`/src/content/pic/${project.id}.jpg`} />
+  ) : (
+      <Icon name="fa6-solid:user" width="140px" height="140px" />
+  )}
+
+  <h3>{project.data.name}</h3>
+  <p>{project.data.start} -- {project.data.end}</p>
+  <p>Type: {project.data.type}</p>
+  <p>Keywords: {project.data.keywords}</p>
+  <p>{project.body}</p>
+
+  <div class="social">
+    {project.data.website && (
+        <a href={project.data.website} target="_blank" rel="noopener noreferrer">
+          <Icon name="fa6-solid:house" />
+        </a>
+    )}
+  </div>
+</div>
+
+<style>
+  .card {
+    width: 450px;
+    height: 550px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .card img {
+    width: 260px;
+  }
+
+  .card h3 {
+    margin: 1rem 0 0.3rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .text {
+    margin: 0.15rem 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .social {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.9rem;
+  }
+
+  .social a {
+    color: #555;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
+  }
+
+  .social a:hover {
+    color: #111;
+  }
+</style>

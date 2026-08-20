@@ -1,0 +1,177 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface PersonData {
+  person: {
+    data: {
+      lastname: string;
+      firstname: string;
+      organization: string;
+      position: string;
+      category: string;
+      other?: string;
+      social?: {
+        home?: string;
+        twitter?: string;
+        linkedin?: string;
+        github?: string;
+        orcid?: string;
+        scholar?: string;
+      };
+      dateOfStay?: {
+        start: string;
+        end?: string;
+      }
+    };
+  };
+}
+
+const { person } = Astro.props;
+const { firstname, lastname, position, social, organization, dateOfStay, other } = person.data as PersonData;
+
+const homepage =
+  social?.home && !social.home.startsWith("http")
+    ? `https://${social.home}`
+    : social?.home;
+
+const images = import.meta.glob('/src/content/photo/*.jpg', {
+  eager: true,
+  import: 'default',
+});
+---
+
+<div class="card">
+  {images[`/src/content/photo/${person.id}.jpg`] ? (
+  <img src={`/src/content/photo/${person.id}.jpg`} />
+  ) : (
+      <Icon name="fa6-solid:user" width="140px" height="140px" />
+  )}
+
+
+  <h3>{`${firstname} ${lastname}`}</h3>
+
+  <p class="text">{position}</p>
+  <p class="text">{organization}</p>
+  <p class="text">{other}</p>
+  {dateOfStay && (
+      <p class="text">{dateOfStay.start} -- {dateOfStay.end ?? ""}</p>
+  )}
+
+  <div class="social">
+    {homepage && (
+      <a href={homepage} target="_blank" rel="noopener noreferrer">
+        <Icon name="fa6-solid:house" />
+      </a>
+    )}
+
+    {social?.twitter && (
+      <a
+        href={`https://twitter.com/${social.twitter}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="fa6-brands:twitter" />
+      </a>
+    )}
+
+    {social?.linkedin && (
+      <a
+        href={`https://linkedin.com/in/${social.linkedin}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="fa6-brands:linkedin" />
+      </a>
+    )}
+
+    {social?.github && (
+        <a
+            href={`https://github.com/${social.github}`}
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+          <Icon name="fa6-brands:github" />
+        </a>
+    )}
+
+    {social?.orcid && (
+        <a
+            href={`https://orcid.org/${social.orcid}`}
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+          <Icon name="fa6-brands:orcid" />
+        </a>
+    )}
+
+    {social?.scholar && (
+        <a
+            href={`https://scholar.google.com/citations?user=${social.scholar}`}
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+          <Icon name="fa6-brands:google-scholar" />
+        </a>
+    )}
+  </div>
+</div>
+
+<style>
+  .card {
+    width: 150px;
+    height: 300px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .card img {
+    width: 145px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .card h3 {
+    margin: 1rem 0 0.3rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .text {
+    margin: 0.15rem 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .social {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.9rem;
+  }
+
+  .social a {
+    color: #555;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
+  }
+
+  .social a:hover {
+    color: #111;
+  }
+</style>

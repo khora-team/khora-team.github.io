@@ -1,0 +1,103 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface SoftwareData {
+  software: {
+    data: {
+      name: string,
+      website?: string,
+      repository?: string,
+      logo?: string,
+    },
+    body: string
+  };
+}
+
+const { software } = Astro.props as SoftwareData;
+
+---
+
+<div class="card">
+  {software.data.logo ? (
+      <img src={software.data.logo} />
+  ) : (
+      <Icon name="fa6-solid:user" width="140px" height="140px" />
+  )}
+
+  <h3>{software.data.name}</h3>
+  <p>{software.body}</p>
+
+  <div class="social">
+    {software.data.website && (
+        <a href={software.data.website} target="_blank" rel="noopener noreferrer">
+          <Icon name="fa6-solid:house" />
+        </a>
+    )}
+
+    {software.data.repository && (
+        <a href={software.data.repository} target="_blank" rel="noopener noreferrer">
+          <Icon name="fa6-brands:github" />
+        </a>
+    )}
+  </div>
+</div>
+
+<style>
+  .card {
+    width: 400px;
+    height: 320px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .card img {
+    width: 160px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .card h3 {
+    margin: 1rem 0 0.3rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .text {
+    margin: 0.15rem 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .social {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.9rem;
+  }
+
+  .social a {
+    color: #555;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
+  }
+
+  .social a:hover {
+    color: #111;
+  }
+</style>

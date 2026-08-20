@@ -1,0 +1,67 @@
+---
+const links = [
+  { href: "/", label: "Home" },
+  // { href: "/objectives", label: "Objectives" },
+  { href: "/team", label: "Team" },
+  { href: "/publications", label: "Publications" },
+  { href: "/projects", label: "Projects" },
+  { href: "/software", label: "Software" },
+  { href: "/jobs", label: "Join us" },
+];
+
+const pathname = Astro.url.pathname;
+---
+
+<nav class="navigation">
+  <ul>
+    {links.map(({ href, label }) => {
+      const active = pathname === href;
+
+      return (
+        <li>
+          <a
+            href={href}
+            class:list={{ active }}
+            aria-current={active ? "page" : undefined}
+          >
+            {label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>
+
+<style>
+ .navigation {
+  background: #222;
+  padding: 1rem 2rem;
+}
+
+.navigation ul {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navigation a {
+  color: #ddd;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navigation a:hover {
+  color: white;
+}
+
+.navigation a.active {
+  color: #4f9cff;
+  border-bottom: 2px solid #4f9cff;
+  padding-bottom: 0.25rem;
+}
+</style>

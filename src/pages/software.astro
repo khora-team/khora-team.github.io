@@ -1,0 +1,38 @@
+---
+import { getCollection } from "astro:content";
+import Navigation from '../components/Navigation.astro';
+import Layout from '../layouts/Layout.astro';
+import SoftwareCard from "../components/SoftwareCard.astro";
+
+const software = await getCollection("software");
+
+software.sort((a, b) =>
+  a.data.name.localeCompare(b.data.name)
+);
+
+---
+
+<Layout>
+	<Navigation />
+
+	<section class="team-section">
+		<h1>Software</h1>
+		<div class="team-grid">
+
+	{software.map(sw => {
+		return (<SoftwareCard software={sw} />)
+	})}
+
+		</div>
+	</section>
+</Layout>
+
+
+<style>
+.team-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 2rem;
+}
+</style>
