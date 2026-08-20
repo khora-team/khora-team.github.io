@@ -1,6 +1,6 @@
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { parse } from "bibtex-parser";
+import { parse, type Entry } from "@retorquere/bibtex-parser";
 
 const HAL_URL =
   "https://haltools.inria.fr/Public/exportPubli.php" +
@@ -25,18 +25,6 @@ const OUTPUT_DIR = join(
   "publications",
 );
 
-interface Publication {
-  citationKey: string;
-  entryType: string;
-  fields: Record<string, string>;
-}
-
-/**
- * Download the BibTeX export from HAL.
- *
- * Anubis may return an HTML challenge page instead of BibTeX.
- * We explicitly detect that situation before parsing.
- */
 async function downloadBibtex(): Promise<string> {
   console.log("Downloading publications from HAL...");
   console.log(HAL_URL);
@@ -58,6 +46,10 @@ async function downloadBibtex(): Promise<string> {
   const contentType = response.headers.get("content-type") ?? "";
   const lowerBody = body.toLowerCase();
 
+  /*
+   * Anubis can return an HTML challenge page with HTTP 200.
+   * Never try to parse that page as BibTeX.
+   */
   const isAnubis =
     lowerBody.includes("anubis") ||
     lowerBody.includes("making sure you're not a bot") ||
@@ -89,161 +81,150 @@ async function downloadBibtex(): Promise<string> {
 }
 
 /**
- * Parse the BibTeX document using bibtex-parser.
- */
-function parseBibtex(source: string): Publication[] {
-  const parsed = parse(source);
-
-  return Object.entries(parsed)
-    .map(([citationKey, entry]) => {
-      const value = entry as Record<string, unknown>;
-
-      const entryType =
-        typeof value.entryType === "string"
-          ? value.entryType
-          : typeof value.type === "string"
-            ? value.type
-            : "misc";
-
-      const fields: Record<string, string> = {};
-
-      for (const [key, fieldValue] of Object.entries(value)) {
-        if (
-          key === "entryType" ||
-          key === "type"
-        ) {
-          continue;
-        }
-
-        if (typeof fieldValue === "string") {
-          fields[key.toLowerCase()] = cleanValue(fieldValue);
-        }
-      }
-
-      return {
-        citationKey,
-        entryType,
-        fields,
-      };
-    });
-}
-
-/**
- * Remove simple BibTeX/LaTeX formatting from values.
+ * Convert a BibTeX field value to a string suitable for Markdown.
  *
- * HAL may return accented characters as LaTeX depending on the
- * export configuration.
+ * bibtex-parser already performs LaTeX/Unicode conversion.
+ * Some fields, such as creators, are represented as arrays/objects.
  */
-function cleanValue(value: string): string {
-  return value
-    .replace(/\{([^{}]*)\}/g, "$1")
-    .replace(/\\&/g, "&")
-    .replace(/\\%/g, "%")
-    .replace(/\\_/g, "_")
-    .replace(/\\#/g, "#")
-    .replace(/\\textasciitilde/g, "~")
-    .replace(/\\textbackslash/g, "\\")
-    .replace(/---/g, "—")
-    .replace(/--/g, "–")
-    .replace(/\s+/g, " ")
-    .trim();
+function fieldToString(value: unknown): string {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value).trim();
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map(fieldToString)
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  if (typeof value === "object") {
+    const object = value as Record<string, unknown>;
+
+    if (typeof object.name === "string") {
+      return object.name.trim();
+    }
+
+    if (
+      typeof object.firstName === "string" ||
+      typeof object.lastName === "string"
+    ) {
+      return [
+        object.firstName,
+        object.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+    }
+  }
+
+  return "";
 }
 
 /**
- * BibTeX authors are separated with "and".
+ * Convert the BibTeX creator representation into author names.
  */
-function parseAuthors(value: string): string[] {
-  return value
-    .split(/\s+and\s+/i)
-    .map(cleanValue)
+function getAuthors(entry: Entry): string[] {
+  const author = entry.fields.author;
+
+  if (!author) {
+    return [];
+  }
+
+  if (!Array.isArray(author)) {
+    const value = fieldToString(author);
+    return value ? [value] : [];
+  }
+
+  return author
+    .map((creator) => fieldToString(creator))
     .filter(Boolean);
 }
 
 /**
- * Escape a value for YAML frontmatter.
+ * Read a field from an Entry.
+ */
+function getField(
+  entry: Entry,
+  name: string,
+): string {
+  return fieldToString(entry.fields[name]);
+}
+
+/**
+ * Escape a string for YAML frontmatter.
  */
 function yamlString(value: string): string {
   return JSON.stringify(value);
 }
 
 /**
- * Use HAL identifier when available, otherwise fall back to the
- * BibTeX citation key.
+ * Generate a stable filename.
+ *
+ * HAL ID is preferred because it remains stable if the BibTeX citation
+ * key changes.
  */
-function getFilename(publication: Publication): string {
-  const fields = publication.fields;
-
+function getFilename(entry: Entry): string {
   const halId =
-    fields.hal_id ??
-    fields.halid;
+    getField(entry, "hal_id") ||
+    getField(entry, "halid");
 
   if (halId) {
-    const normalized = halId
-      .replace(/[^a-zA-Z0-9_-]/g, "-")
-      .toLowerCase();
-
-    return `${normalized}.md`;
+    return `${halId
+    .replace(/[^a-zA-Z0-9_-]/g, "-")
+    .toLowerCase()}.md`;
   }
 
-  const key = publication.citationKey
+  return `${entry.key
     .replace(/[^a-zA-Z0-9_-]/g, "-")
-    .toLowerCase();
-
-  return `${key}.md`;
+    .toLowerCase()}.md`;
 }
 
 /**
- * Generate the Astro Markdown document.
+ * Generate an Astro Content Collection Markdown file.
  */
-function generateMarkdown(
-  publication: Publication,
-): string {
-  const fields = publication.fields;
-
+function generateMarkdown(entry: Entry): string {
   const title =
-    fields.title ??
+    getField(entry, "title") ||
     "Untitled publication";
 
-  const authors = parseAuthors(
-    fields.author ?? "",
-  );
+  const authors = getAuthors(entry);
 
   const year =
-    fields.year ??
-    "";
+    getField(entry, "year");
 
   const venue =
-    fields.journal ??
-    fields.booktitle ??
-    fields.publisher ??
-    "";
+    getField(entry, "journal") ||
+    getField(entry, "booktitle") ||
+    getField(entry, "publisher");
 
   const halId =
-    fields.hal_id ??
-    fields.halid ??
-    "";
+    getField(entry, "hal_id") ||
+    getField(entry, "halid");
 
   const doi =
-    fields.doi ??
-    "";
+    getField(entry, "doi");
 
   const url =
-    fields.url ??
+    getField(entry, "url") ||
     (halId
       ? `https://hal.science/${halId}`
     : "");
 
 const pdf =
-    fields.pdf ??
-    "";
+    getField(entry, "pdf");
 
 const abstract =
-    fields.abstract ??
-    "";
+    getField(entry, "abstract");
 
 const type =
-    fields.typdoc ??
-    publication.entryType;
+    getField(entry, "typdoc") ||
+    entry.type;
 
 return `---
 title: ${yamlString(title)}
@@ -267,7 +248,7 @@ ${abstract}
 }
 
 /**
- * Remove previously generated Markdown files.
+ * Delete previously generated Markdown files.
  */
 async function cleanOutputDirectory(): Promise<void> {
     await mkdir(OUTPUT_DIR, {
@@ -285,9 +266,6 @@ async function cleanOutputDirectory(): Promise<void> {
     );
 }
 
-/**
- * Main.
- */
 async function main(): Promise<void> {
     console.log(
         "Starting HAL publications import...\n",
@@ -295,22 +273,8 @@ async function main(): Promise<void> {
 
     const bibtex = await downloadBibtex();
 
-    console.log("Parsing BibTeX...");
-
-    const publications = parseBibtex(bibtex);
-
-    if (publications.length === 0) {
-        throw new Error(
-            "No publications found in the HAL BibTeX export.",
-        );
-    }
-
-    console.log(
-        `Found ${publications.length} publications.`,
-    );
-
     /*
-     * Save the original BibTeX export.
+     * Save the original HAL export.
      */
     await mkdir(
         join(process.cwd(), "data"),
@@ -328,7 +292,36 @@ async function main(): Promise<void> {
     );
 
     /*
-     * Regenerate Markdown files.
+     * Parse using @retorquere/bibtex-parser.
+     */
+    console.log("Parsing BibTeX...");
+
+    const bibliography = parse(bibtex);
+
+    if (bibliography.errors.length > 0) {
+        console.warn(
+            `bibtex-parser reported ${bibliography.errors.length} error(s).`,
+        );
+
+        for (const error of bibliography.errors) {
+            console.warn(error);
+        }
+    }
+
+    const publications = bibliography.entries;
+
+    if (publications.length === 0) {
+        throw new Error(
+            "No publications found in the HAL BibTeX export.",
+        );
+    }
+
+    console.log(
+        `Found ${publications.length} publications.`,
+    );
+
+    /*
+     * Rebuild generated Markdown files.
      */
     await cleanOutputDirectory();
 

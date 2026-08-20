@@ -9,14 +9,17 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "publications:import": "tsx scripts/import-hal-publications.ts"
   },
   "dependencies": {
     "@iconify-json/fa6-brands": "^1.2.6",
     "astro": "^7.0.6",
-    "astro-icon": "^1.1.5"
+    "astro-icon": "^1.1.5",
+    "@retorquere/bibtex-parser": "10.0.1"
   },
   "devDependencies": {
-    "@iconify-json/fa6-solid": "^1.2.4"
+    "@iconify-json/fa6-solid": "^1.2.4",
+    "tsx": "4.23.12"
   }
 }
