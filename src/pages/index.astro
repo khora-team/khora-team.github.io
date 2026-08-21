@@ -2,9 +2,6 @@
 import Layout from "../layouts/Layout.astro";
 import Navigation from "../components/Navigation.astro";
 
-const teamSummary = `Software developers now have to explore and operate within an increasingly complex and constantly evolving design space, while having to deal with deploying new software releases faster. Khora is developing a research activity in software engineering to help developers in mastering their increasingly complex design space. To do so, Khora develops new scientific theories, approaches, and techniques related to exploratory programming, a development mode to try out, compare, explore different versions of software artifacts. Khora's research agenda implies working on: 1. domain-specific IDEs and digital twins to help developers master their development design space through novel exploratory programming features (augmented development environment); 2. large-scale, polyglot, AI-based, code analysis techniques to underpin exploratory programming (augmented code analysis). The application domains of Khora encompass software engineering with software artifacts (co-)evolution and optimization (e.g., reduce software energy consumption) and scientific computing to help scientists in their complex software development.`;
-
-const workplace = `Khora is a research group part of the IRISA laboratory (a mixed research unit grouping CNRS, University of Rennes, Inria, INSA Rennes), Rennes, France.`;
 ---
 
 <Layout
@@ -23,14 +20,28 @@ const workplace = `Khora is a research group part of the IRISA laboratory (a mix
 				</p>
 
 				<p class="main-text">
-					{teamSummary}
+					Software developers now have to explore and operate within an increasingly complex and constantly
+					evolving design space, while having to deal with deploying new software releases faster. Khora is
+					developing a research activity in software engineering to help developers in mastering their
+					increasingly complex design space. To do so, Khora develops new scientific theories, approaches,
+					and techniques related to exploratory programming, a development mode to try out, compare, explore
+					different versions of software artifacts. Khora's research agenda implies working on:
+					1. domain-specific IDEs and digital twins to help developers master their development design space
+					through novel exploratory programming features (augmented development environment);
+					2. large-scale, polyglot, AI-based, code analysis techniques to underpin exploratory programming
+					(augmented code analysis). The application domains of Khora encompass software engineering with
+					software artifacts (co-)evolution and optimization (e.g., reduce software energy consumption) and
+					scientific computing to help scientists in their complex software development.
 				</p>
 
 				<p class="main-text">
-					{workplace}
+					Khora is a research group part of the IRISA laboratory (a mixed research unit grouping CNRS,
+					University of Rennes, Inria, INSA Rennes), Rennes, France.<br/>
+					Khora is one of the spin-offs that succeeded <a href="//www.diverse-team.fr">DiverSE</a> in sept 2026
+					(which itself succeeded <a href="//triskell.irisa.fr">Triskell</a> in 2013).
 				</p>
-				<div class="affiliations">
-					<span>IRISA</span>
+				<div class="keywords">
+					<span><a href="//www.irisa.fr/en/equipes/khora">IRISA</a></span>
 					<span>CNRS</span>
 					<span>University of Rennes</span>
 					<span>Inria</span>
@@ -42,39 +53,60 @@ const workplace = `Khora is a research group part of the IRISA laboratory (a mix
 		</section>
 
 		<section class="section-divider main">
+			<p class="main-text-light">
+				Research Axes
+			</p>
+
 			<div class="main-content">
-				<p class="main-text">Exploratory programming requires a research agenda that involves studying both HCI (Human-
-					Computer Interaction) and software engineering research paths. KHORA's research agenda thus implies
-					working on:</p>
+				<p class="main-text">Exploratory programming requires a research agenda that involves studying both HCI
+					(Human-Computer Interaction) and software engineering research paths. Khora's research agenda
+					thus implies working on two research axes:</p>
 			</div>
 		</section>
 
 		<section class="main axes">
 			<article class="axis-card">
-				<span class="axis-number">01</span>
-				<div>
+				<span class="axis-number">1</span>
+
+				<div class="axis-content">
 					<p class="axis-label">Augmented Development Environment</p>
 					<p class="main-text">
-						By taking the perspective of developers, this axis will characterize and develop exploratory pro-
-						gramming and propose novel approaches to build domain-specific and cutting-edge development
+						By taking the perspective of developers, this axis will characterize and develop exploratory
+						programming and propose novel approaches to build domain-specific and cutting-edge development
 						environments (IDEs and digital twins) supporting domain-specific exploratory programming.
 						Scientific contributions had worked on related topics, but they are mainly related to general-
 						purpose languages (GPLs) and their general-purpose IDEs. Moreover, those contributions lack to
 						work on easing the creation of domain-specific and highly interactive IDEs and digital twins.
 					</p>
+					<div class="keywords">
+						<span>Exploratory programming</span>
+						<span>Live programming</span>
+						<span>DevX</span>
+						<span>IDE</span>
+						<span>Digital twin</span>
+						<span>Interactive system engineering</span>
+						<span>HCI</span>
+						<span>V&V</span>
+					</div>
 				</div>
 			</article>
 
 			<article class="axis-card">
-				<span class="axis-number">02</span>
+				<span class="axis-number">2</span>
 
-				<div>
+				<div class="axis-content">
 					<p class="axis-label">Augmented Code Analysis</p>
 					<p class="main-text">
-						The previous research axe focuses on the HCI engineering facets of exploratory programming.
-						Building such a development mode, however, requires a research agenda in software (language)
-						engineering.
+						While Axis 1 focuses on HCI engineering facets of exploratory programming, this second research axis
+						focuses on underlying software engineering techniques to underpin this development mode. In particular,
+						deterministic and explainable code analysis techniques will improve the precision of exploratory processes.
 					</p>
+					<div class="keywords">
+						<span>Polyglot code analysis</span>
+						<span>Scalable code analysis</span>
+						<span>AI-based exploratory techniques</span>
+						<span>Validity frame</span>
+					</div>
 				</div>
 			</article>
 		</section>
@@ -97,44 +129,31 @@ const workplace = `Khora is a research group part of the IRISA laboratory (a mix
 	}
 
 	.axis-card {
-		position: relative;
-		min-height: 450px;
-		padding: 55px clamp(24px, 5vw, 75px);
 		display: grid;
-		grid-template-columns: 50px 1fr;
-		gap: 20px;
+		grid-template-columns: 40px minmax(0, 1fr);
+		align-items: start;
+		padding-right: 20px;
+	}
+
+	.axis-number {
+		grid-column: 1;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+	}
+
+	.axis-label {
+		margin: 0 0 1.5rem;
+		font-size: 1.1rem;
+		font-weight: 600;
+	}
+
+	.axis-content {
+		grid-column: 2;
 	}
 
 	.axis-card + .axis-card {
-		border-left: 1px solid rgba(23, 24, 23, 0.15);
-	}
-
-	.axis-number,
-	.axis-label {
-		margin: 0 0 30px;
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-		font-weight: 700;
-	}
-
-	.axis-card p:not(.axis-label) {
-		position: absolute;
-		right: 50px;
-		padding: 0 0 0 30px;
-	}
-
-	.affiliations {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 10px;
-		margin-top: 55px;
-	}
-
-	.affiliations span {
-		padding: 10px 15px;
-		border: 1px solid rgba(23, 24, 23, 0.2);
-		font-size: 0.75rem;
+		padding-left: 20px;
+		border-left: 1px solid rgba(0, 0, 0, 0.12);
 	}
 
 	.section-divider::before {
@@ -145,4 +164,5 @@ const workplace = `Khora is a research group part of the IRISA laboratory (a mix
 		margin: 0 auto;
 		background: rgba(23, 24, 23, 0.12);
 	}
+
 </style>
