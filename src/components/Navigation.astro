@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 const links = [
 { href: "/", label: "Home" },
 { href: "/team", label: "Team" },
@@ -8,7 +10,36 @@ const links = [
 { href: "/jobs", label: "Join us" },
 ];
 
+const images = import.meta.glob('/src/content/logo/*.webp', {
+  eager: true,
+  import: 'default',
+});
+
 const pathname = Astro.url.pathname;
+
+const institutions = [
+  {
+    name: "IRISA",
+    logo: images["/src/content/logo/irisa.webp"],
+  },
+  {
+    name: "INSA Rennes",
+    logo: images["/src/content/logo/insa.webp"],
+  },
+  {
+    name: "University of Rennes",
+    logo: images["/src/content/logo/ur.webp"],
+  },
+  {
+    name: "CNRS",
+    logo: images["/src/content/logo/cnrs.webp"],
+  },
+  {
+    name: "Inria",
+    logo: images["/src/content/logo/inria.webp"],
+  },
+];
+
 ---
 
 <nav class="navigation">
@@ -34,6 +65,17 @@ const pathname = Astro.url.pathname;
       );
     })}
   </ul>
+
+  <div class="institutions" aria-label="Khora institutions">
+    {institutions.map((institution) => (
+        <Image
+            src={institution.logo}
+            alt={institution.name}
+            width=auto
+            height="50%"
+        />
+    ))}
+  </div>
 </nav>
 
 <style>
@@ -113,5 +155,13 @@ const pathname = Astro.url.pathname;
     .navigation ul a {
       font-size: 0.85rem;
     }
+  }
+
+  .institutions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 100%;
   }
 </style>
