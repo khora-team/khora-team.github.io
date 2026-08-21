@@ -36,6 +36,7 @@ const authors = [
         ),
     ),
 ].sort((a, b) => a.localeCompare(b));
+
 ---
 
 <Layout title="Publications">
@@ -44,7 +45,10 @@ const authors = [
     <main class="main">
         <h1>Publications</h1>
 
-        <section class="filters" aria-label="Filter publications">
+        <section
+                class="filters"
+                aria-label="Filter publications"
+        >
             <div class="search-field">
                 <label for="publication-search">
                     Search
@@ -64,10 +68,14 @@ const authors = [
                 </label>
 
                 <select id="publication-year">
-                    <option value="">All years</option>
+                    <option value="">
+                        All years
+                    </option>
 
                     {years.map((year) => (
-                            <option value={year}>{year}</option>
+                            <option value={year}>
+                                {year}
+                            </option>
                     ))}
                 </select>
             </div>
@@ -78,10 +86,14 @@ const authors = [
                 </label>
 
                 <select id="publication-type">
-                    <option value="">All types</option>
+                    <option value="">
+                        All types
+                    </option>
 
                     {types.map((type) => (
-                            <option value={type}>{type}</option>
+                            <option value={type}>
+                                {type}
+                            </option>
                     ))}
                 </select>
             </div>
@@ -92,10 +104,14 @@ const authors = [
                 </label>
 
                 <select id="publication-author">
-                    <option value="">All authors</option>
+                    <option value="">
+                        All authors
+                    </option>
 
                     {authors.map((author) => (
-                            <option value={author}>{author}</option>
+                            <option value={author}>
+                                {author}
+                            </option>
                     ))}
                 </select>
             </div>
@@ -127,6 +143,7 @@ const authors = [
                             data-type={publication.data.type ?? ""}
                             data-authors={publication.data.authors.join("|")}
                             data-search={[
+                                publication.data.keywords.join(" "),
                                 publication.data.title,
                                 publication.data.authors.join(" "),
                                 publication.data.venue ?? "",
@@ -135,16 +152,7 @@ const authors = [
                                 .join(" ")
                                 .toLowerCase()}
                     >
-                        <PublicationCard
-                                title={publication.data.title}
-                                authors={publication.data.authors}
-                                year={publication.data.year}
-                                venue={publication.data.venue}
-                                type={publication.data.type}
-                                url={publication.data.url}
-                                pdf={publication.data.pdf}
-                                doi={publication.data.doi}
-                        />
+                        <PublicationCard publication={publication} />
                     </div>
             ))}
         </section>
@@ -160,6 +168,8 @@ const authors = [
 </Layout>
 
 <script>
+    import {normalize} from "node:path";
+
     const searchInput =
         document.querySelector<HTMLInputElement>(
             "#publication-search",
@@ -230,12 +240,20 @@ const authors = [
                     ?.split("|")
                     .map((value) => value.trim()) ?? [];
 
-            const itemSearch =
-                item.dataset.search ?? "";
+            const keywords = item.dataset.keywords ?? "";
+
+            const searchableText = [
+                keywords,
+                itemYear,
+                itemType,
+                ...itemAuthors,
+                item.dataset.search,
+            ].join(" ").toLocaleLowerCase();
+            console.log(searchableText)
 
             const matchesSearch =
                 !search ||
-                itemSearch.includes(search);
+                searchableText.includes(search);
 
             const matchesYear =
                 !year ||

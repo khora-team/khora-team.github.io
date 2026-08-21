@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -31,17 +31,17 @@ jobs:
           mkdir -p data
 
           wget \
-            --output-document=data/publications.bib \
-            "https://haltools.inria.fr/Public/exportPubli.php?annee_publideb=2026&annee_publifin=2026&labos_exp=diverse&format_export=bibtex&langue=Anglais&CB_accent_latex=oui"
+            --output-document=data/publications.xml \
+            "https://haltools.inria.fr/Public/exportPubli.php?annee_publideb=2026&annee_publifin=2026&labos_exp=diverse&format_export=xml&langue=Anglais"
 
           echo "Downloaded file:"
-          file data/publications.bib
+          file data/publications.xml
 
           echo "First lines:"
-          head -n 10 data/publications.bib
+          head -n 10 data/publications.xml
 
-          if ! grep -q '^@' data/publications.bib; then
-            echo "ERROR: HAL did not return a BibTeX document."
+          if ! grep -q '^@' data/publications.xml; then
+            echo "ERROR: HAL did not return an XML document."
             exit 1
           fi
 
@@ -53,12 +53,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          git add data/publications.bib
+          git add data/publications.xml
           git add src/content/publications
           
           if git diff --cached --quiet; then
             echo "No publication changes detected."
           else
-            git commit -m "chore: update publications"
+            git commit -m "chore(hal): publications updated"
             git push
           fi

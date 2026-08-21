@@ -1,77 +1,67 @@
 ---
+import {typeLabels} from "../content.config.ts";
+
 interface Props {
     title: string;
     authors: string[];
     year: number | string;
     venue?: string;
     type?: string;
+    keywords?: string[];
     url?: string;
     pdf?: string;
     doi?: string;
 }
 
 const {
-    title,
-    authors,
-    year,
-    venue,
-    type,
-    url,
-    pdf,
-    doi,
+    publication
 } = Astro.props;
 
-const typeLabels: Record<string, string> = {
-    article: "Journal",
-    journal: "Journal",
-    inproceedings: "Conference",
-    conference: "Conference",
-    proceedings: "Conference",
-    book: "Book",
-    incollection: "Book chapter",
-    phdthesis: "PhD thesis",
-    mastersthesis: "Master thesis",
-    techreport: "Technical report",
-    misc: "Other",
-};
-
-const normalizedType = type?.toLowerCase() ?? "";
-const typeLabel =
-    typeLabels[normalizedType] ??
-    type ??
-    "Publication";
 ---
 
 <article class="publication-card">
     <div class="publication-meta">
-        <span class="publication-year">{year}</span>
+        <span class="publication-year">
+            {publication.data.year}
+        </span>
 
-        {type && (
+        {publication.data.type && (
                 <span class="publication-type">
-        {typeLabel}
-      </span>
+                {publication.data.type}
+            </span>
         )}
     </div>
 
     <div class="publication-content">
-        <h2>{title}</h2>
+        <h2>{publication.data.title}</h2>
 
-        {authors.length > 0 && (
+        {publication.data.authors.length > 0 && (
                 <p class="publication-authors">
-                    {authors.join(", ")}
+                    {publication.data.authors.join(", ")}
                 </p>
         )}
 
-        {venue && (
+        {publication.data.venue && (
                 <p class="publication-venue">
-                    {venue}
+                    {publication.data.venue}
                 </p>
+        )}
+
+        {publication.data.keywords?.length > 0 && (
+                <ul
+                        class="publication-keywords"
+                        aria-label="Keywords"
+                >
+                    {publication.data.keywords.map((keyword) => (
+                            <li>{keyword}</li>
+                    ))}
+                </ul>
         )}
 
         <div class="publication-links">
-            {url && (
+            {publication.data.url && (
                     <a
-                            href={url}
+                            href={publication.data.url}
                             target="_blank"
                             rel="noopener noreferrer"
                     >
@@ -79,9 +69,9 @@ const typeLabel =
                     </a>
             )}
 
-            {pdf && (
+            {publication.data.pdf && (
                     <a
-                            href={pdf}
+                            href={publication.data.pdf}
                             target="_blank"
                             rel="noopener noreferrer"
                     >
@@ -89,9 +79,9 @@ const typeLabel =
                     </a>
             )}
 
-            {doi && (
+            {publication.data.doi && (
                     <a
-                            href={`https://doi.org/${doi}`}
+                            href={`https://doi.org/${publication.data.doi}`}
                             target="_blank"
                             rel="noopener noreferrer"
                     >
@@ -155,15 +145,41 @@ const typeLabel =
         line-height: 1.5;
     }
 
+    .publication-keywords {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+
+        margin: 10px 0 0;
+        padding: 0;
+
+        list-style: none;
+    }
+
+    .publication-keywords li {
+        padding: 3px 8px;
+
+        border: 1px solid
+        rgba(23, 24, 23, 0.15);
+        border-radius: 999px;
+
+        color: #666;
+        background: rgba(23, 24, 23, 0.03);
+
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+
     .publication-links {
         display: flex;
         gap: 16px;
-        margin-top: 8px;
+        margin-top: 10px;
     }
 
     .publication-links a {
         color: inherit;
         text-decoration: none;
+
         font-size: 0.85rem;
         font-weight: 600;
     }

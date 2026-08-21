@@ -16,7 +16,7 @@
     "@iconify-json/fa6-brands": "^1.2.6",
     "astro": "^7.0.6",
     "astro-icon": "^1.1.5",
-    "@retorquere/bibtex-parser": "10.0.1"
+    "fast-xml-parser": "5.11.0"
   },
   "devDependencies": {
     "@iconify-json/fa6-solid": "^1.2.4",
