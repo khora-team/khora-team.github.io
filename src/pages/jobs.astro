@@ -1,0 +1,38 @@
+---
+import { getCollection } from "astro:content";
+import Navigation from '../components/Navigation.astro';
+import Layout from '../layouts/Layout.astro';
+import ProjectCard from "../components/ProjectCard.astro";
+import JobCard from "../components/JobCard.astro";
+
+const positions = await getCollection("jobs");
+
+positions.sort((a, b) => b.data.starts - a.data.starts);
+
+---
+
+<Layout>
+    <Navigation />
+
+    <section class="main">
+        <h1>Open Positions</h1>
+
+        <div class="team-grid">
+
+            {positions.map(job => {
+                return (<JobCard job={job} />);
+            })}
+
+        </div>
+    </section>
+</Layout>
+
+
+<style>
+    .team-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+    }
+</style>

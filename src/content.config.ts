@@ -67,9 +67,24 @@ const publications = defineCollection({
   }),
 });
 
+const jobs = defineCollection({
+  loader: glob({ base: './src/content/positions', pattern: '**/*.md' }),
+  schema: z.object({
+    title: z.string(),
+    starts: z.number(),
+    duration: z.string(),
+    position: z.string(),
+    level: z.string(),
+    contact: z.string(),
+    email: z.string(),
+    summary: z.string(),
+  }),
+});
+
 export const collections = {
   team,
   software,
   project,
   publications,
+  jobs,
 };
