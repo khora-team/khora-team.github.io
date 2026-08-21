@@ -40,7 +40,7 @@ jobs:
           echo "First lines:"
           head -n 10 data/publications.xml
 
-          if ! grep -q '^@' data/publications.xml; then
+          if ! grep -q '^<' data/publications.xml; then
             echo "ERROR: HAL did not return an XML document."
             exit 1
           fi
