@@ -4,7 +4,7 @@ import icon from "astro-icon";
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://khora-team.github.io',
+    site: 'https://www-khora.irisa.fr',
     i18n: {
         locales: ["en"],
         defaultLocale: "en",
