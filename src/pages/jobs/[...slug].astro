@@ -1,0 +1,145 @@
+---
+import { getCollection, render } from "astro:content";
+import Navigation from "../../components/Navigation.astro";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+    const jobs = await getCollection("jobs");
+
+    return jobs.map((job) => ({
+        params: {
+            slug: job.id,
+        },
+        props: {
+            job,
+        },
+    }));
+}
+
+const { job } = Astro.props;
+
+const { Content } = await render(job);
+---
+
+<Layout
+        title={`${job.data.title} — Khora`}
+        description={job.data.summary}
+>
+    <Navigation />
+
+    <main class="main">
+        <a class="back" href="/jobs/">
+            ← All open positions
+        </a>
+
+        <header class="job-header">
+            <div class="keywords">
+                <span class="keyword">{job.data.position}</span>
+            </div>
+
+            <h1>{job.data.title}</h1>
+
+            <div class="job-meta">
+                <div>
+                    <span>Starting date</span>
+                    <strong>{job.data.starts}</strong>
+                </div>
+
+                <div>
+                    <span>Duration</span>
+                    <strong>{job.data.duration}</strong>
+                </div>
+
+                <div>
+                    <span>Level</span>
+                    <strong>{job.data.level}</strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="job-layout">
+            <article class="main-text">
+                <Content />
+            </article>
+
+            <aside class="job-contact">
+                <p class="contact-label">Contact</p>
+
+                <p class="contact-name">
+                    {job.data.contact}
+                </p>
+
+                <a href={`mailto:${job.data.email}`}>
+                    {job.data.email}
+                </a>
+            </aside>
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .back {
+        display: inline-block;
+        margin-bottom: 40px;
+    }
+
+    .job-header {
+        margin-bottom: 20px;
+    }
+
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+        margin-top: 50px;
+        padding-top: 25px;
+
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .job-meta div {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .job-meta span {
+        color: #777;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .job-meta strong {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .job-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+        gap: 100px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .job-contact {
+        align-self: start;
+        padding-top: 5px;
+    }
+
+    .contact-label {
+        margin: 0 0 15px;
+
+        color: #777;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .contact-name {
+        margin: 0 0 5px;
+        font-weight: 600;
+    }
+</style>

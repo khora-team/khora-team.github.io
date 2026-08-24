@@ -5,78 +5,80 @@ import { render } from "astro:content";
 
 interface JobData {
     job: {
+        id: string;
         data: {
-            title: string,
-            starts: number,
-            duration: string,
-            position: string,
-            level: string,
-            contact: string,
-            email: string,
-            summary: string
-        },
-        body: string
+            title: string;
+            position: string;
+        };
     };
 }
 
 const { job } = Astro.props as JobData;
-const { Content } = await render(job);
 
 ---
 
-<div class="card">
-    <h3>{job.data.title}</h3>
-    <p>Starting date: {job.data.starts}, for a duration of: {job.data.duration}</p>
-    <p>Type of job: {job.data.position}, level: {job.data.level}</p>
-    <p>contact: {job.data.contact} ({job.data.email})</p>
-    <Content/>
-</div>
+<article class="job-card">
+  <span class="job-type">
+    {job.data.position}
+  </span>
+
+    <h2>{job.data.title}</h2>
+
+    <a
+            class="details"
+            href={`/jobs/${job.id}/`}
+    >
+        More details
+        <span aria-hidden="true">→</span>
+    </a>
+</article>
 
 <style>
-    .card {
-        text-align: center;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 1.5rem;
-        background: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        transition:
-                box-shadow 0.2s ease,
-                transform 0.2s ease;
+    .job-card {
+        padding: 2rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
     }
 
-    .card:hover {
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
+    .job-card:last-child {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     }
 
-    .card h3 {
-        margin: 1rem 0 0.3rem;
-        font-size: 1.15rem;
-        font-weight: 700;
+    .job-type {
+        display: block;
+        margin-bottom: 0.6rem;
+
+        color: #777;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
     }
 
-    .text {
-        margin: 0.15rem 0;
-        color: #666;
-        font-size: 0.9rem;
+    .job-card h2 {
+        margin: 0;
+
+        font-size: 1.35rem;
+        line-height: 1.35;
+        font-weight: 600;
     }
 
-    .social {
-        margin-top: 1rem;
-        display: flex;
-        justify-content: center;
-        gap: 0.9rem;
-    }
+    .details {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
 
-    .social a {
-        color: #555;
+        margin-top: 1.25rem;
+
+        color: inherit;
         text-decoration: none;
-        font-size: 1.2rem;
-        transition: color 0.2s ease;
+
+        font-size: 0.85rem;
+        font-weight: 600;
+
+        transition: gap 0.2s ease;
     }
 
-    .social a:hover {
-        color: #111;
+    .details:hover {
+        gap: 1rem;
     }
 </style>
