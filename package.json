@@ -1,7 +1,7 @@
 {
   "name": "khora-team.github.io",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "node": ">=22.19.0"
   },
