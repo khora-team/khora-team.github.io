@@ -28,16 +28,20 @@ const categories = [
 			<h1>Members of Khora</h1>
 
 			{categories.map(({ key, title }) => {
-				const members = people.filter((person) => person.data.category === key)
+				const members = people.filter(
+					(person) => person.data.category === key
+				);
 
 				if (members.length === 0) return null;
 
 				return (
 					<section class="team-section">
-						<h2>{title}</h2>
+						<header class="section-header">
+							<h2>{title}</h2>
+						</header>
 
 						<div class="team-grid">
-							{members.map(person => (
+							{members.map((person) => (
 								<PersonCard person={person} />
 							))}
 						</div>
@@ -50,10 +54,19 @@ const categories = [
 
 
 <style>
-.team-grid {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 2rem;
-}
+	.team-section {
+		margin-top: 1rem;
+	}
+
+	.section-header {
+		padding-bottom: 0.5rem;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+	}
+
+	.team-grid {
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		gap: 3rem 2rem;
+		padding-top: 1rem;
+	}
 </style>
