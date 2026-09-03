@@ -1,0 +1,33 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+	<p>&copy; {year} Khora — IRISA, Rennes, France.</p>
+	<a href="//www.irisa.fr/en/equipes/khora">IRISA</a>
+</footer>
+
+<style>
+	.footer {
+		padding: 20px 100px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		border-top: 1px solid rgba(23, 24, 23, 0.12);
+		font-size: 0.8rem;
+		opacity: 0.6;
+	}
+
+	.footer p {
+		margin: 0;
+	}
+
+	@media (max-width: 700px) {
+		.footer {
+			padding: 20px 1.5rem;
+			flex-direction: column;
+			gap: 8px;
+			text-align: center;
+		}
+	}
+</style>
