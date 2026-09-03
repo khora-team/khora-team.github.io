@@ -1,18 +1,18 @@
 ---
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 
 const links = [
-{ href: "/", label: "Home" },
-{ href: "/team", label: "Team" },
-{ href: "/publications", label: "Publications" },
-{ href: "/projects", label: "Projects" },
-{ href: "/software", label: "Software" },
-{ href: "/jobs", label: "Join us" },
+  { href: "/", label: "Home" },
+  { href: "/team", label: "Team" },
+  { href: "/publications", label: "Publications" },
+  { href: "/projects", label: "Projects" },
+  { href: "/software", label: "Software" },
+  { href: "/jobs", label: "Join us" },
 ];
 
-const images = import.meta.glob('/src/content/logo/*.webp', {
+const images = import.meta.glob("/src/content/logo/*.webp", {
   eager: true,
-  import: 'default',
+  import: "default",
 });
 
 const pathname = Astro.url.pathname;
@@ -20,26 +20,30 @@ const pathname = Astro.url.pathname;
 const institutions = [
   {
     name: "IRISA",
-    logo: images["/src/content/logo/irisa.webp"],
+    logo: images["/src/content/logo/irisa_blanc.webp"],
+    url: "https://www.irisa.fr/",
   },
   {
     name: "INSA Rennes",
-    logo: images["/src/content/logo/insa.webp"],
+    logo: images["/src/content/logo/insa_blanc.webp"],
+    url: "https://www.insa-rennes.fr",
   },
   {
     name: "University of Rennes",
-    logo: images["/src/content/logo/ur.webp"],
+    logo: images["/src/content/logo/ur_blanc.webp"],
+    url: "https://www.univ-rennes.fr/",
   },
   {
     name: "CNRS",
-    logo: images["/src/content/logo/cnrs.webp"],
+    logo: images["/src/content/logo/cnrs_blanc.webp"],
+    url: "https://www.cnrs.fr/fr",
   },
   {
     name: "Inria",
-    logo: images["/src/content/logo/inria.webp"],
+    logo: images["/src/content/logo/inria_blanc.webp"],
+    url: "https://www.inria.fr",
   },
 ];
-
 ---
 
 <nav class="navigation">
@@ -49,32 +53,38 @@ const institutions = [
   </a>
 
   <ul>
-    {links.map(({ href, label }) => {
-      const active = pathname === href;
+    {
+      links.map(({ href, label }) => {
+        const active = pathname === href;
 
-      return (
+        return (
           <li>
             <a
-                href={href}
-                class:list={{ active }}
-                aria-current={active ? "page" : undefined}
+              href={href}
+              class:list={{ active }}
+              aria-current={active ? "page" : undefined}
             >
               {label}
             </a>
           </li>
-      );
-    })}
+        );
+      })
+    }
   </ul>
 
   <div class="institutions" aria-label="Khora institutions">
-    {institutions.map((institution) => (
-        <Image
+    {
+      institutions.map((institution) => (
+        <a href={institution.url}>
+          <Image
             src={institution.logo}
             alt={institution.name}
-            width=auto
-            height="50%"
-        />
-    ))}
+            height={40}
+            densities={[1, 1.5, 2, 3]}
+          />
+        </a>
+      ))
+    }
   </div>
 </nav>
 
@@ -163,5 +173,11 @@ const institutions = [
     align-items: center;
     gap: 0.5rem;
     height: 100%;
+  }
+
+  .institutions img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
   }
 </style>
