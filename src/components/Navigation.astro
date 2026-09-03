@@ -1,5 +1,6 @@
 ---
 import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 
 const links = [
   { href: "/", label: "Home" },
@@ -10,7 +11,7 @@ const links = [
   { href: "/jobs", label: "Join us" },
 ];
 
-const images = import.meta.glob("/src/content/logo/*.webp", {
+const images = import.meta.glob<ImageMetadata>("/src/content/logo/*.webp", {
   eager: true,
   import: "default",
 });

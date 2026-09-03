@@ -48,7 +48,6 @@ const team = defineCollection({
   }),
 });
 
-
 const publications = defineCollection({
   loader: glob({ base: './src/content/publications', pattern: '**/*.md' }),
   schema: z.object({
