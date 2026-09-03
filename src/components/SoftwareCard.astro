@@ -1,21 +1,20 @@
 ---
 import { Icon } from "astro-icon/components";
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { type SoftwareData } from '../models/SoftwareData.model'
 
-interface SoftwareData {
+interface Props {
   software: {
-    data: {
-      name: string,
-      website?: string,
-      repository?: string,
-    },
-    body: string
+    id: string;
+    data: SoftwareData;
+    body?: string;
   };
 }
 
-const { software } = Astro.props as SoftwareData;
+const { software } = Astro.props as Props;
 
-const images = import.meta.glob('/src/content/pic/*.webp', {
+const images = import.meta.glob<ImageMetadata>('/src/content/pic/*.webp', {
   eager: true,
   import: 'default',
 });

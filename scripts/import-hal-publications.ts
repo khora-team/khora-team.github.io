@@ -10,6 +10,7 @@ import {
     XMLParser,
     type X2jOptions,
 } from "fast-xml-parser";
+import { type Publication } from '../src/models/Publication.model'
 
 const XML_FILE = join(
     process.cwd(),
@@ -23,20 +24,6 @@ const OUTPUT_DIR = join(
     "content",
     "publications",
 );
-
-interface Publication {
-    title: string;
-    authors: string[];
-    year: string;
-    venue: string;
-    halId: string;
-    doi: string;
-    url: string;
-    pdf: string;
-    type: string;
-    keywords: string[];
-    abstract: string;
-}
 
 interface XmlNode {
     [key: string]: unknown;
@@ -239,8 +226,8 @@ function attr(
 
     const value =
         (node as XmlNode)[
-            `@_${name}`
-            ];
+        `@_${name}`
+        ];
 
     return text(value);
 }
@@ -321,8 +308,8 @@ function getAuthors(
 ): string[] {
     const titleStmt =
         biblFull.titleStmt as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     if (!titleStmt) {
         return [];
@@ -344,8 +331,8 @@ function getAuthors(
 
             const persName =
                 node.persName as
-                    | XmlNode
-                    | undefined;
+                | XmlNode
+                | undefined;
 
             if (!persName) {
                 return "";
@@ -377,26 +364,26 @@ function getAuthors(
  */
 function getYear(
     biblFull: XmlNode,
-): string {
+): number | null {
     const sourceDesc =
         biblFull.sourceDesc as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const biblStruct =
         sourceDesc?.biblStruct as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const monogr =
         biblStruct?.monogr as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const imprint =
         monogr?.imprint as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const dates =
         asArray(imprint?.date);
@@ -421,19 +408,19 @@ function getYear(
             );
 
         if (value) {
-            return value.slice(0, 4);
+            return Number.parseInt(value.slice(0, 4));
         }
     }
 
     const editionStmt =
         biblFull.editionStmt as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const edition =
         editionStmt?.edition as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const editionDates =
         asArray(edition?.date);
@@ -458,11 +445,11 @@ function getYear(
             );
 
         if (value) {
-            return value.slice(0, 4);
+            return Number.parseInt(value.slice(0, 4));
         }
     }
 
-    return "";
+    return null;
 }
 
 /**
@@ -473,18 +460,18 @@ function getVenue(
 ): string {
     const sourceDesc =
         biblFull.sourceDesc as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const biblStruct =
         sourceDesc?.biblStruct as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const monogr =
         biblStruct?.monogr as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     if (!monogr) {
         return "";
@@ -503,8 +490,8 @@ function getHalId(
 ): string {
     const publicationStmt =
         biblFull.publicationStmt as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const idnos =
         asArray(
@@ -532,13 +519,13 @@ function getDoi(
 ): string {
     const sourceDesc =
         biblFull.sourceDesc as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const biblStruct =
         sourceDesc?.biblStruct as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const idnos =
         asArray(
@@ -567,8 +554,8 @@ function getUrl(
 ): string {
     const publicationStmt =
         biblFull.publicationStmt as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const idnos =
         asArray(
@@ -607,13 +594,13 @@ function getPdf(
 ): string {
     const editionStmt =
         biblFull.editionStmt as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const edition =
         editionStmt?.edition as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     if (!edition) {
         return "";
@@ -667,13 +654,13 @@ function getAbstract(
 ): string {
     const profileDesc =
         biblFull.profileDesc as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const abstract =
         profileDesc?.abstract as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     if (!abstract) {
         return "";
@@ -690,13 +677,13 @@ function getType(
 ): string {
     const profileDesc =
         biblFull.profileDesc as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const textClass =
         profileDesc?.textClass as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const classCodes =
         asArray(
@@ -734,13 +721,13 @@ function getKeywords(
 ): string[] {
     const profileDesc =
         biblFull.profileDesc as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const textClass =
         profileDesc?.textClass as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const keywords =
         asArray(
@@ -779,11 +766,11 @@ function getKeywords(
  */
 function parsePublication(
     biblFull: XmlNode,
-): Publication {
+): (Publication & { abstract: string }) {
     const titleStmt =
         biblFull.titleStmt as
-            | XmlNode
-            | undefined;
+        | XmlNode
+        | undefined;
 
     const title =
         innerText(
@@ -873,7 +860,7 @@ function getFilename(
  * Generate an Astro Markdown document.
  */
 function generateMarkdown(
-    publication: Publication,
+    publication: Publication & { abstract: string },
 ): string {
     const authors =
         publication.authors;
@@ -884,8 +871,7 @@ function generateMarkdown(
     return `---
 title: ${yamlString(publication.title)}
 authors:
-${
-        authors.length > 0
+${authors.length > 0
             ? authors
                 .map(
                     (author) =>
@@ -893,11 +879,10 @@ ${
                 )
                 .join("\n")
             : '  - "Unknown"'
-    }
-year: ${
-        publication.year ||
+        }
+year: ${publication.year ||
         "null"
-    }
+        }
 venue: ${yamlString(publication.venue)}
 halId: ${yamlString(publication.halId)}
 doi: ${yamlString(publication.doi)}
@@ -905,8 +890,7 @@ url: ${yamlString(publication.url)}
 pdf: ${yamlString(publication.pdf)}
 type: ${yamlString(publication.type)}
 keywords:
-${
-        keywords.length > 0
+${keywords.length > 0
             ? keywords
                 .map(
                     (keyword) =>
@@ -914,7 +898,7 @@ ${
                 )
                 .join("\n")
             : "  []"
-    }
+        }
 ---
 
 ${publication.abstract}
@@ -960,7 +944,7 @@ async function readXml(): Promise<string> {
  */
 function parseXml(
     xml: string,
-): Publication[] {
+): (Publication & { abstract: string })[] {
     const options: X2jOptions = {
         ignoreAttributes: false,
         attributeNamePrefix: "@_",
@@ -1051,7 +1035,7 @@ async function main(): Promise<void> {
         "Parsing XML...",
     );
 
-    const publications =
+    const publications: (Publication & { abstract: string })[] =
         parseXml(xml);
 
     if (
@@ -1071,7 +1055,7 @@ async function main(): Promise<void> {
     for (
         const publication
         of publications
-        ) {
+    ) {
         const filename =
             getFilename(
                 publication,

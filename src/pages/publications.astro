@@ -152,7 +152,7 @@ const authors = [
                                 .join(" ")
                                 .toLowerCase()}
                     >
-                        <PublicationCard publication={publication} />
+                        <PublicationCard publication={publication.data} />
                     </div>
             ))}
         </section>
@@ -168,8 +168,6 @@ const authors = [
 </Layout>
 
 <script>
-    import {normalize} from "node:path";
-
     const searchInput =
         document.querySelector<HTMLInputElement>(
             "#publication-search",

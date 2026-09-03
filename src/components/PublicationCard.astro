@@ -1,93 +1,89 @@
 ---
-import {typeLabels} from "../content.config.ts";
+import { type Publication } from '../models/Publication.model'
 
 interface Props {
-    title: string;
-    authors: string[];
-    year: number | string;
-    venue?: string;
-    type?: string;
-    keywords?: string[];
-    url?: string;
-    pdf?: string;
-    doi?: string;
+    publication: Publication
 }
 
-const {
-    publication
-} = Astro.props;
-
+const { publication } = Astro.props;
 ---
 
 <article class="publication-card">
     <div class="publication-meta">
         <span class="publication-year">
-            {publication.data.year}
+            {publication.year}
         </span>
 
-        {publication.data.type && (
-                <span class="publication-type">
-                {publication.data.type}
-            </span>
-        )}
+        {
+            publication.type && (
+                <span class="publication-type">{publication.type}</span>
+            )
+        }
     </div>
 
     <div class="publication-content">
-        <h2>{publication.data.title}</h2>
+        <h2>{publication.title}</h2>
 
-        {publication.data.authors.length > 0 && (
+        {
+            publication.authors.length > 0 && (
                 <p class="publication-authors">
-                    {publication.data.authors.join(", ")}
+                    {publication.authors.join(", ")}
                 </p>
-        )}
+            )
+        }
 
-        {publication.data.venue && (
-                <p class="publication-venue">
-                    {publication.data.venue}
-                </p>
-        )}
+        {
+            publication.venue && (
+                <p class="publication-venue">{publication.venue}</p>
+            )
+        }
 
-        {publication.data.keywords?.length > 0 && (
-                <ul
-                        class="publication-keywords"
-                        aria-label="Keywords"
-                >
-                    {publication.data.keywords.map((keyword) => (
-                            <li>{keyword}</li>
+        {
+            publication.keywords?.length > 0 && (
+                <ul class="publication-keywords" aria-label="Keywords">
+                    {publication.keywords.map((keyword) => (
+                        <li>{keyword}</li>
                     ))}
                 </ul>
-        )}
+            )
+        }
 
         <div class="publication-links">
-            {publication.data.url && (
+            {
+                publication.url && (
                     <a
-                            href={publication.data.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        href={publication.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                     >
                         HAL
                     </a>
-            )}
+                )
+            }
 
-            {publication.data.pdf && (
+            {
+                publication.pdf && (
                     <a
-                            href={publication.data.pdf}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        href={publication.pdf}
+                        target="_blank"
+                        rel="noopener noreferrer"
                     >
                         PDF
                     </a>
-            )}
+                )
+            }
 
-            {publication.data.doi && (
+            {
+                publication.doi && (
                     <a
-                            href={`https://doi.org/${publication.data.doi}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        href={`https://doi.org/${publication.doi}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                     >
                         DOI
                     </a>
-            )}
+                )
+            }
         </div>
     </div>
 </article>
@@ -159,8 +155,7 @@ const {
     .publication-keywords li {
         padding: 3px 8px;
 
-        border: 1px solid
-        rgba(23, 24, 23, 0.15);
+        border: 1px solid rgba(23, 24, 23, 0.15);
         border-radius: 999px;
 
         color: #666;
