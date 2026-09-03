@@ -47,6 +47,7 @@ const images = import.meta.glob('/src/content/pic/*.jpg', {
 
 <style>
   .card {
+    overflow: auto;
     width: 450px;
     height: 550px;
     text-align: center;
@@ -68,6 +69,7 @@ const images = import.meta.glob('/src/content/pic/*.jpg', {
   .card img {
     width: 260px;
     height: 260px;
+    object-fit: contain;
   }
 
   .card h3 {
