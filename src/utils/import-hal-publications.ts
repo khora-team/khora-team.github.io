@@ -1,28 +1,16 @@
-import {
-    mkdir,
-    readdir,
-    readFile,
-    rm,
-    writeFile,
-} from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
     XMLParser,
     type X2jOptions,
 } from "fast-xml-parser";
-import { type Publication } from '../src/models/Publication.model'
+import { type Publication } from '../models/Publication.model'
+import type { Loader } from 'astro/loaders';
 
 const XML_FILE = join(
     process.cwd(),
     "data",
     "publications.xml",
-);
-
-const OUTPUT_DIR = join(
-    process.cwd(),
-    "src",
-    "content",
-    "publications",
 );
 
 interface XmlNode {
@@ -233,6 +221,32 @@ function attr(
 }
 
 /**
+ * Get the edition to read metadata from.
+ *
+ * A publication can have several `<edition>` entries
+ * (one per HAL version, e.g. v1, v2, ...), in which case
+ * `fast-xml-parser` returns an array instead of a single
+ * node. Prefer the edition marked `type="current"`, falling
+ * back to the last one.
+ */
+function getCurrentEdition(
+    editionStmt: XmlNode | undefined,
+): XmlNode | undefined {
+    const editions =
+        asArray(editionStmt?.edition) as XmlNode[];
+
+    return (
+        editions.find(
+            (candidate) =>
+                attr(
+                    candidate,
+                    "type",
+                ) === "current",
+        ) ?? editions[editions.length - 1]
+    );
+}
+
+/**
  * Convert HAL typology codes to the
  * normalized types used by the application.
  *
@@ -418,9 +432,7 @@ function getYear(
         | undefined;
 
     const edition =
-        editionStmt?.edition as
-        | XmlNode
-        | undefined;
+        getCurrentEdition(editionStmt);
 
     const editionDates =
         asArray(edition?.date);
@@ -598,9 +610,7 @@ function getPdf(
         | undefined;
 
     const edition =
-        editionStmt?.edition as
-        | XmlNode
-        | undefined;
+        getCurrentEdition(editionStmt);
 
     if (!edition) {
         return "";
@@ -766,7 +776,7 @@ function getKeywords(
  */
 function parsePublication(
     biblFull: XmlNode,
-): (Publication & { abstract: string }) {
+): Publication {
     const titleStmt =
         biblFull.titleStmt as
         | XmlNode
@@ -819,96 +829,9 @@ function parsePublication(
 }
 
 /**
- * Escape a string for YAML frontmatter.
- */
-function yamlString(
-    value: string,
-): string {
-    return JSON.stringify(value);
-}
-
-/**
- * Generate a stable filename.
- *
- * HAL ID is preferred.
- */
-function getFilename(
-    publication: Publication,
-): string {
-    if (publication.halId) {
-        return `${publication.halId
-            .replace(
-                /[^a-zA-Z0-9_-]/g,
-                "-",
-            )
-            .toLowerCase()}.md`;
-    }
-
-    return `${publication.title
-        .replace(
-            /[^a-zA-Z0-9_-]+/g,
-            "-",
-        )
-        .replace(
-            /^-+|-+$/g,
-            "",
-        )
-        .toLowerCase()}.md`;
-}
-
-/**
- * Generate an Astro Markdown document.
- */
-function generateMarkdown(
-    publication: Publication & { abstract: string },
-): string {
-    const authors =
-        publication.authors;
-
-    const keywords =
-        publication.keywords;
-
-    return `---
-title: ${yamlString(publication.title)}
-authors:
-${authors.length > 0
-            ? authors
-                .map(
-                    (author) =>
-                        `  - ${yamlString(author)}`,
-                )
-                .join("\n")
-            : '  - "Unknown"'
-        }
-year: ${publication.year ||
-        "null"
-        }
-venue: ${yamlString(publication.venue)}
-halId: ${yamlString(publication.halId)}
-doi: ${yamlString(publication.doi)}
-url: ${yamlString(publication.url)}
-pdf: ${yamlString(publication.pdf)}
-type: ${yamlString(publication.type)}
-keywords:
-${keywords.length > 0
-            ? keywords
-                .map(
-                    (keyword) =>
-                        `  - ${yamlString(keyword)}`,
-                )
-                .join("\n")
-            : "  []"
-        }
----
-
-${publication.abstract}
-`;
-}
-
-/**
  * Read the XML file.
  */
-async function readXml(): Promise<string> {
+export async function readXml(): Promise<string> {
     console.log(
         `Reading XML file: ${XML_FILE}`,
     );
@@ -942,9 +865,9 @@ async function readXml(): Promise<string> {
 /**
  * Parse HAL TEI XML.
  */
-function parseXml(
+export function parseXml(
     xml: string,
-): (Publication & { abstract: string })[] {
+): Publication[] {
     const options: X2jOptions = {
         ignoreAttributes: false,
         attributeNamePrefix: "@_",
@@ -985,117 +908,17 @@ function parseXml(
     );
 }
 
-/**
- * Remove previously generated
- * Markdown files.
- */
-async function cleanOutputDirectory(): Promise<void> {
-    await mkdir(
-        OUTPUT_DIR,
-        {
-            recursive: true,
+export function publicationsLoader(): Loader {
+    return {
+        name: 'publications-loader',
+        load: async (context) => {
+            const xml = await readXml();
+            const publications: Publication[] = parseXml(xml);
+            for (const pub of publications) {
+                const id = pub.halId;
+                const data = await context.parseData({ id, data: pub as unknown as Record<string, unknown> });
+                context.store.set({ id, data });
+            }
         },
-    );
-
-    const files =
-        await readdir(
-            OUTPUT_DIR,
-        );
-
-    await Promise.all(
-        files
-            .filter(
-                (file) =>
-                    file.endsWith(".md"),
-            )
-            .map(
-                (file) =>
-                    rm(
-                        join(
-                            OUTPUT_DIR,
-                            file,
-                        ),
-                    ),
-            ),
-    );
+    };
 }
-
-/**
- * Main import process.
- */
-async function main(): Promise<void> {
-    console.log(
-        "Starting HAL publications import...\n",
-    );
-
-    const xml =
-        await readXml();
-
-    console.log(
-        "Parsing XML...",
-    );
-
-    const publications: (Publication & { abstract: string })[] =
-        parseXml(xml);
-
-    if (
-        publications.length === 0
-    ) {
-        throw new Error(
-            "No publications found in the XML file.",
-        );
-    }
-
-    console.log(
-        `Found ${publications.length} publications.`,
-    );
-
-    await cleanOutputDirectory();
-
-    for (
-        const publication
-        of publications
-    ) {
-        const filename =
-            getFilename(
-                publication,
-            );
-
-        const outputPath =
-            join(
-                OUTPUT_DIR,
-                filename,
-            );
-
-        const markdown =
-            generateMarkdown(
-                publication,
-            );
-
-        await writeFile(
-            outputPath,
-            markdown,
-            "utf8",
-        );
-
-        console.log(
-            `  ✓ ${filename}`,
-        );
-    }
-
-    console.log(
-        `\nGenerated ${publications.length} Markdown files.`,
-    );
-}
-
-main().catch(
-    (error) => {
-        console.error(
-            "\nPublication import failed:",
-        );
-
-        console.error(error);
-
-        process.exit(1);
-    },
-);

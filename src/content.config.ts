@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { publicationsLoader } from './utils/import-hal-publications';
 
 const project = defineCollection({
   loader: glob({ base: './src/content/project', pattern: '**/*.md' }),
@@ -49,13 +50,14 @@ const team = defineCollection({
 });
 
 const publications = defineCollection({
-  loader: glob({ base: './src/content/publications', pattern: '**/*.md' }),
+  loader: publicationsLoader(),
   schema: z.object({
     title: z.string(),
     authors: z.array(
         z.string(),
     ),
     year: z.number().nullable(),
+    abstract: z.string().default(""),
     venue: z.string().default(""),
     halId: z.string().default(""),
     doi: z.string().default(""),
