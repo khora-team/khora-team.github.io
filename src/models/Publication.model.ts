@@ -1,6 +1,7 @@
 export interface Publication {
     title: string;
     authors: string[];
+    abstract: string;
     year: number | null;
     venue: string;
     halId: string;

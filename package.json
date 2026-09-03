@@ -10,8 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check",
-    "publications:import": "tsx scripts/import-hal-publications.ts"
+    "check": "astro check"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
