@@ -50,7 +50,7 @@ const images = import.meta.glob('/src/content/pic/*.webp', {
 <style>
   .card {
     width: 400px;
-    height: 320px;
+    height: 450px;
     text-align: center;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -68,10 +68,10 @@ const images = import.meta.glob('/src/content/pic/*.webp', {
   }
 
   .card img {
-    width: 160px;
-    height: 160px;
+    width: 260px;
+    height: 260px;
     aspect-ratio: 1;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 50%;
     margin: 0 auto;
     display: block;
