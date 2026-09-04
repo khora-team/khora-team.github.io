@@ -465,34 +465,91 @@ function getYear(
 }
 
 /**
- * Extract journal / venue.
+ * Extract journal name.
  */
-function getVenue(
+function getJournal(
     biblFull: XmlNode,
 ): string {
     const sourceDesc =
         biblFull.sourceDesc as
-        | XmlNode
-        | undefined;
+            | XmlNode
+            | undefined;
 
     const biblStruct =
         sourceDesc?.biblStruct as
-        | XmlNode
-        | undefined;
+            | XmlNode
+            | undefined;
 
     const monogr =
         biblStruct?.monogr as
-        | XmlNode
-        | undefined;
+            | XmlNode
+            | undefined;
 
     if (!monogr) {
         return "";
     }
 
-    return innerText(
-        monogr.title,
-    );
+    return innerText(monogr.title);
 }
+
+
+/**
+ * Extract conference name.
+ */
+function getConference(
+    biblFull: XmlNode,
+): string {
+    const sourceDesc =
+        biblFull.sourceDesc as
+            | XmlNode
+            | undefined;
+
+    const biblStruct =
+        sourceDesc?.biblStruct as
+            | XmlNode
+            | undefined;
+
+    const monogr =
+        biblStruct?.monogr as
+            | XmlNode
+            | undefined;
+
+    const meeting =
+        monogr?.meeting as
+            | XmlNode
+            | undefined;
+
+    if (!meeting) {
+        return "";
+    }
+
+    return innerText(meeting.title);
+}
+
+/**
+ * Extract journal / conference name.
+ *
+ * Returns the journal name if present,
+ * otherwise the conference name.
+ */
+function getVenue(
+    biblFull: XmlNode,
+): string {
+    const journal = getJournal(biblFull);
+
+    if (journal.trim() !== "") {
+        return journal;
+    }
+
+    const conference = getConference(biblFull);
+
+    if (conference.trim() !== "") {
+        return conference;
+    }
+
+    return "";
+}
+
 
 /**
  * Extract HAL ID.
