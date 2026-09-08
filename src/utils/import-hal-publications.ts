@@ -969,6 +969,7 @@ export function publicationsLoader(): Loader {
     return {
         name: 'publications-loader',
         load: async (context) => {
+            context.store.clear();
             const xml = await readXml();
             const publications: Publication[] = parseXml(xml);
             for (const pub of publications) {
