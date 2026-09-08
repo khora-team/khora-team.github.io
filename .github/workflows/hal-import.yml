@@ -32,7 +32,7 @@ jobs:
 
           wget \
             --output-document=data/publications.xml \
-            "https://haltools.inria.fr/Public/exportPubli.php?annee_publideb=2026&annee_publifin=2026&labos_exp=diverse&format_export=xml&langue=Anglais"
+            "https://haltools.inria.fr/Public/exportPubli.php?annee_publideb=2026&labos_exp=khora&format_export=xml&langue=Anglais"
 
           echo "Downloaded file:"
           file data/publications.xml
