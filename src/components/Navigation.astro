@@ -25,11 +25,6 @@ const institutions = [
     url: "https://www.irisa.fr/",
   },
   {
-    name: "INSA Rennes",
-    logo: images["/src/content/logo/insa_blanc.webp"],
-    url: "https://www.insa-rennes.fr",
-  },
-  {
     name: "University of Rennes",
     logo: images["/src/content/logo/ur_blanc.webp"],
     url: "https://www.univ-rennes.fr/",
@@ -38,6 +33,11 @@ const institutions = [
     name: "CNRS",
     logo: images["/src/content/logo/cnrs_blanc.webp"],
     url: "https://www.cnrs.fr/fr",
+  },
+  {
+    name: "INSA Rennes",
+    logo: images["/src/content/logo/insa_blanc.webp"],
+    url: "https://www.insa-rennes.fr",
   },
   {
     name: "Inria",
@@ -80,8 +80,6 @@ const institutions = [
           <Image
             src={institution.logo}
             alt={institution.name}
-            height={40}
-            densities={[1, 1.5, 2, 3]}
           />
         </a>
       ))
@@ -177,7 +175,7 @@ const institutions = [
   }
 
   .institutions img {
-    height: 40px;
+    height: 39px;
     width: auto;
     object-fit: contain;
   }
