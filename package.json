@@ -15,14 +15,14 @@
   "dependencies": {
     "@astrojs/check": "^0.9.10",
     "@iconify-json/fa6-brands": "1.2.6",
-    "astro": "7.2.4",
+    "astro": "7.3.2",
     "astro-icon": "1.2.0",
-    "fast-xml-parser": "5.11.0",
+    "fast-xml-parser": "5.11.1",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@iconify-json/fa6-solid": "1.2.4",
     "@types/node": "^26.4.1",
-    "tsx": "4.23.12"
+    "tsx": "4.23.13"
   }
 }
