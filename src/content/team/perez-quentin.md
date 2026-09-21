@@ -5,9 +5,8 @@ organization: INSA Rennes
 position: Associate Professor
 category: permanent
 social:
-  home: https://qperez.github.io/quentinperez.github.io
+  home: https://qperez.github.io/
   github: qperez
-  twitter: qperez19
   linkedin: quentin-perez-93b832a4
   google-scholar: xZYkVhsAAAAJ
   orcid: 0000-0002-1534-4821
