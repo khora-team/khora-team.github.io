@@ -3,6 +3,7 @@ firstname: Sophie
 lastname: Fortz
 organization: University of Rennes
 position: Postdoc
+other: with team DiverSE
 category: postdoc
 social:
   home: https://sfortz.github.io/
