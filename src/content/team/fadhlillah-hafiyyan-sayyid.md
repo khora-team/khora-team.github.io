@@ -2,6 +2,6 @@
 firstname: Hafiyyan Sayyid
 lastname: Fadhlillah
 position: Postdoc
-organization: Inria
+organization: Univ Rennes
 category: postdoc
 ---
